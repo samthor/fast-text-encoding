@@ -1,6 +1,6 @@
-This is a fast polyfill for `[TextEncoder][1]` and `TextDecoder[2]`.
+This is a fast polyfill for [`TextEncoder`][1] and [`TextDecoder`][2], which let you encode and decode JavaScript strings into UTF-8 bytes.
 
-It is fast partially as it does not support any encodings aside UTF-8 (and note that natively, only `TextDecoder` supports alternative encodings).
+It is fast partially as it does not support any encodings aside UTF-8 (and note that natively, only `TextDecoder` supports alternative encodings anyway).
 
 [1]: https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder
 [2]: https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder
@@ -16,6 +16,7 @@ It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `wi
   import './node_modules/fast-text-encoding/text.min.js';
   // do something with TextEncoder
 </script>
+```
 
 **Note**: Always include `text.min.js`, as it's compiled to ES5 for older environments.
 
