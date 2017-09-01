@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script defer src="https://cdn.rawgit.com/mathiasbynens/utf8.js/5566334e/utf8.js"></script>
+<script type="module">
+</script>
+<script type="module">
+  import './polyfill.js';
+  import 'https://cdn.rawgit.com/inexorabletash/text-encoding/b98ab30b/lib/encoding.js';
+  const polyfill = module.exports;
+
+  import * as utf from './js-utf.js';
+
+  const runs = 100;
+  const dataUrl = './utf8_sequence_0-0xffff_assigned_printable.txt';
+
+  (async function() {
+    let text = await window.fetch(dataUrl).then((data) => data.text());
+    text = text.substr(0, 10000);
+    let saved, output;
+
+    console.time('utf8.encode');
+    for (let i = 0; i < runs; ++i) {
+      const s = utf8.encode(text);
+      saved = s;
+    }
+    console.timeEnd('utf8.encode');
+
+    console.time('utf8.decode');
+    for (let i = 0; i < runs; ++i) {
+      const out = utf8.decode(saved);
+      output = out;
+    }
+    console.timeEnd('utf8.decode');
+    if (output !== text) {
+      throw new Error('utf8 got wrong answer');
+    }
+
+    console.time('js-utf.encode');
+    const out = new Uint8Array(1024 * 1024);
+    for (let i = 0; i < runs; ++i) {
+      const len = utf.encode(text, out);
+      saved = out.slice(0, len);
+    }
+    console.timeEnd('js-utf.encode');
+    console.info(saved);
+    const polyfillSaved = saved;
+
+    console.time('js-utf.decode');
+    for (let i = 0; i < runs; ++i) {
+      const out = utf.decode(saved);
+      output = out;
+    }
+    console.timeEnd('js-utf.decode');
+    if (output !== text) {
+      console.info('expected output length', text.length, 'was', output.length);
+      throw new Error('js-utf got wrong answer');
+    }
+
+
+    console.time('TextEncoder');
+    const encoder = new TextEncoder();
+    for (let i = 0; i < runs; ++i) {
+      const out = encoder.encode(text);
+      saved = out;
+    }
+    console.timeEnd('TextEncoder');
+    console.info(saved);
+
+    console.time('TextDecoder');
+    const decoder = new TextDecoder();
+    for (let i = 0; i < runs; ++i) {
+      const out = decoder.decode(polyfillSaved);
+      output = out;
+    }
+    console.timeEnd('TextDecoder');
+
+
+    console.time('polyfill.TextEncoder');
+    const encoderP = new polyfill.TextEncoder();
+    for (let i = 0; i < runs; ++i) {
+      const out = encoderP.encode(text);
+      saved = out;
+    }
+    console.timeEnd('polyfill.TextEncoder');
+    console.info(saved);
+
+    console.time('polyfill.TextDecoder');
+    const decoderP = new polyfill.TextDecoder();
+    for (let i = 0; i < runs; ++i) {
+      const out = decoderP.decode(polyfillSaved);
+      output = out;
+    }
+    console.timeEnd('polyfill.TextDecoder');
+
+
+  }());
+
+</script>
+</head>
+</html>
