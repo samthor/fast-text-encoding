@@ -14,7 +14,7 @@ It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `wi
 <script src="node_modules/fast-text-encoding/text.min.js"></script>
 <script type="module">
   import './node_modules/fast-text-encoding/text.min.js';
-  // do something with TextEncoder
+  // confidently do something with TextEncoder \o/
 </script>
 ```
 
@@ -22,16 +22,14 @@ It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `wi
 
 ## Node
 
-Install via NPM or Yarn:
-
-```bash
-yarn add fast-text-encoding
-```
-
-And then import purely for side effects:
+Install via NPM or Yarn (name "fast-text-encoding"), and then import purely for side effects:
 
 ```js
+// don't need to save this anywhere, just require before use
 require('fast-text-encoding');
+
+const buffer = new TextEncoder().encode('Turn me into UTF-8!');
+// buffer is now a Uint8Array of [84, 117, 114, 110, ...]
 ```
 
 # Supports
