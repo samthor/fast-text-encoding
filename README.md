@@ -32,6 +32,9 @@ const buffer = new TextEncoder().encode('Turn me into UTF-8!');
 // buffer is now a Uint8Array of [84, 117, 114, 110, ...]
 ```
 
+However, note that `Buffer.from('Turn me into UTF-8!')` is Node's native version of the text encoding functionality.
+You can probably massage [`Buffer`](https://nodejs.org/api/buffer.html) into acting like `TextEncoder` and `TextDecoder`.
+
 # Supports
 
 Built for IE11, Edge and Node environments.
