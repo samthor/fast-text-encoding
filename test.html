@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script defer src="https://cdn.rawgit.com/mathiasbynens/utf8.js/5566334e/utf8.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/mathiasbynens/utf8.js@5566334e1aa5347ba652c38dc186df08b47d8fb9/utf8.js"></script>
 <script type="module">
 </script>
 <script type="module">
   import './polyfill.js';
-  import 'https://cdn.rawgit.com/inexorabletash/text-encoding/b98ab30b/lib/encoding.js';
+  import 'https://cdn.jsdelivr.net/gh/inexorabletash/text-encoding@b98ab30bf27aef214ff19d0badfbf6f6323a1513/lib/encoding.js';
   const polyfill = module.exports;
 
   import './text.js';
 
   const runs = 1;
-  const dataUrl = './utf8_sequence_0-0xffff_assigned_printable.txt';
+  const dataUrl = 'https://cdn.jsdelivr.net/gh/bits/UTF-8-Unicode-Test-Documents@7de96c3/UTF-8_sequence_separated/utf8_sequence_0-0xffff_assigned_printable.txt';
 
   (async function() {
     let text = await window.fetch(dataUrl).then((data) => data.text());
@@ -59,7 +59,7 @@
 
 
     testEncodeDecode('native', TextEncoder, TextDecoder);
-    testEncodeDecode('fast', TextEncoderPolyfill, TextDecoderPolyfill);
+    // testEncodeDecode('fast', TextEncoderPolyfill, TextDecoderPolyfill);
     testEncodeDecode('polyfill', polyfill.TextEncoder, polyfill.TextDecoder);
 
   }());

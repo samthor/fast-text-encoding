@@ -7,9 +7,11 @@
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
   "license": "Apache-2",
   "scripts": {
-    "build": "google-closure-compiler -O ADVANCED --js=text.js --js_output_file=text.min.js"
+    "build": "google-closure-compiler -O ADVANCED --js=text.js --js_output_file=text.min.js",
+    "serve": "serve ."
   },
   "devDependencies": {
-    "google-closure-compiler": " ^20190301.0.0"
+    "google-closure-compiler": " ^20190301.0.0",
+    "serve": "^10.1.2"
   }
 }

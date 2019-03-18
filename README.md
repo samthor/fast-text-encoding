@@ -42,13 +42,20 @@ Not required for Chrome, Firefox etc, which have native implementations.
 
 # Release
 
-Compile code with [Closure Compiler](https://closure-compiler.appspot.com/home).
+Compile code with [Closure Compiler](https://www.npmjs.com/package/google-closure-compiler):
 
 ```
-// ==ClosureCompiler==
-// @compilation_level ADVANCED_OPTIMIZATIONS
-// @output_file_name text.min.js
-// ==/ClosureCompiler==
-
-// code here
+npm install
+npm run build
 ```
+
+# Manual test
+
+Start the local server:
+
+```
+npm install
+npm run serve
+```
+
+Navigate to http://localhost:5000/test in your browser.
