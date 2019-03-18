@@ -5,5 +5,11 @@
   "main": "text.min.js",
   "repository": "https://github.com/samthor/fast-text-encoder.git",
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
-  "license": "Apache-2"
+  "license": "Apache-2",
+  "scripts": {
+    "build": "google-closure-compiler -O ADVANCED --js=text.js --js_output_file=text.min.js"
+  },
+  "devDependencies": {
+    "google-closure-compiler": " ^20190301.0.0"
+  }
 }
