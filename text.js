@@ -141,8 +141,10 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
 
   const bytes = new Uint8Array(buffer);
   let pos = 0;
+  let chunksize = 0xFFFF;
   const len = bytes.length;
   const out = [];
+  let chunks = [];
 
   while (pos < len) {
     const byte1 = bytes[pos++];
@@ -178,7 +180,15 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
     }
   }
 
-  return String.fromCharCode.apply(null, out);
+  // itterate over the out buffer
+	for (let i = 0; i < len; i+=chunksize) 
+	{
+		// slice chunks to charcodes and apply
+		chunks.push(String.fromCharCode.apply(null, out.slice(i, i+chunksize)));
+	}
+
+	// concat the chunks
+	return chunks.join("");
 }
 
 scope['TextEncoder'] = FastTextEncoder;
