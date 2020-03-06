@@ -4,6 +4,21 @@ function tests(isNative, TextEncoder, TextDecoder) {
 
   suite(isNative ? 'native' : 'polyfill', () => {
 
+    test('really large string', () => {
+      const chunks = new Array(64);
+      for (let i = 0; i < chunks.length; ++i) {
+        const s = new Array(65535).fill('x'.charCodeAt(0));
+        chunks[i] = s;
+      }
+      const s = chunks.join('');
+
+      const buffer = enc.encode(s);
+      const out = dec.decode(buffer);
+
+      assert.equal(out, s);
+
+    });
+
     suite('decoder', () => {
 
       test('basic', () => {
