@@ -105,7 +105,9 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
     target[at++] = (value & 0x3f) | 0x80;
   }
 
-  return target.slice(0, at);
+  // Use subarray if slice isn't supported (IE11). This will use more memory
+  // because the original array still exists.
+  return output.slice ? output.slice(0, at) : output.subarray(0, at);
 }
 
 /**
