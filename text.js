@@ -107,7 +107,7 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
 
   // Use subarray if slice isn't supported (IE11). This will use more memory
   // because the original array still exists.
-  return output.slice ? output.slice(0, at) : output.subarray(0, at);
+  return target.slice ? target.slice(0, at) : target.subarray(0, at);
 }
 
 /**
@@ -156,7 +156,8 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
   while (pos < len) {
     const byte1 = bytes[pos++];
     if (byte1 === 0) {
-      break;  // NULL
+      out.push(0);
+      continue;
     }
 
     if ((byte1 & 0x80) === 0) {  // 1-byte
