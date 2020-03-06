@@ -148,27 +148,42 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
     buffer = buffer.buffer;
   }
 
-  const bytes = new Uint8Array(buffer);
+  let bytes = new Uint8Array(buffer);
   let pos = 0;
-  const len = bytes.length;
-  const out = [];
+  let pending = [];
+  const chunks = [];
 
-  while (pos < len) {
-    const byte1 = bytes[pos++];
-    if (byte1 === 0) {
-      out.push(0);
-      continue;
+  for (;;) {
+    const more = pos < bytes.length;
+
+    // If there's no more data or we're >65k bytes, create a chunk.
+    // This isn't done at the end by simply slicing the data into equal sized
+    // chunks as we might hit a surrogate pair.
+    if (!more || (pos & 0x10000)) {
+      chunks.push(String.fromCharCode.apply(null, pending));
+
+      if (!more) {
+        return chunks.join('');
+      }
+
+      // Move the buffer forward and create another chunk.
+      pending = [];
+      bytes = bytes.subarray(pos);
+      pos = 0;
     }
 
-    if ((byte1 & 0x80) === 0) {  // 1-byte
-      out.push(byte1);
+    const byte1 = bytes[pos++];
+    if (byte1 === 0) {
+      pending.push(0);
+    } else if ((byte1 & 0x80) === 0) {  // 1-byte
+      pending.push(byte1);
     } else if ((byte1 & 0xe0) === 0xc0) {  // 2-byte
       const byte2 = bytes[pos++] & 0x3f;
-      out.push(((byte1 & 0x1f) << 6) | byte2);
+      pending.push(((byte1 & 0x1f) << 6) | byte2);
     } else if ((byte1 & 0xf0) === 0xe0) {
       const byte2 = bytes[pos++] & 0x3f;
       const byte3 = bytes[pos++] & 0x3f;
-      out.push(((byte1 & 0x1f) << 12) | (byte2 << 6) | byte3);
+      pending.push(((byte1 & 0x1f) << 12) | (byte2 << 6) | byte3);
     } else if ((byte1 & 0xf8) === 0xf0) {
       const byte2 = bytes[pos++] & 0x3f;
       const byte3 = bytes[pos++] & 0x3f;
@@ -179,16 +194,14 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
       if (codepoint > 0xffff) {
         // codepoint &= ~0x10000;
         codepoint -= 0x10000;
-        out.push((codepoint >>> 10) & 0x3ff | 0xd800);
+        pending.push((codepoint >>> 10) & 0x3ff | 0xd800);
         codepoint = 0xdc00 | codepoint & 0x3ff;
       }
-      out.push(codepoint);
+      pending.push(codepoint);
     } else {
       // FIXME: we're ignoring this
     }
   }
-
-  return String.fromCharCode.apply(null, out);
 }
 
 scope['TextEncoder'] = FastTextEncoder;
