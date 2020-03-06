@@ -11,6 +11,8 @@ It is fast partially as it does not support any encodings aside UTF-8 (and note 
 
 Install as "fast-text-encoding" via your favourite package manager.
 
+You only need this polyfill if you're supporting older browsers like IE, legacy Edge, ancient Chrome and Firefox, or Node before v11.
+
 ## Browser
 
 Include the minified code inside a `script` tag or as an ES6 Module for its side effects.
@@ -21,29 +23,23 @@ It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `wi
 <script type="module">
   import './node_modules/fast-text-encoding/text.min.js';
   import 'fast-text-encoding';  // or perhaps this
-  // confidently do something with TextEncoder \o/
+  // confidently do something with TextEncoder or TextDecoder \o/
 </script>
 ```
 
-**Note**: You want `text.min.js`, as it's compiled to ES5 for older environments.
+⚠️ You'll probably want to depend on `text.min.js`, as it's compiled to ES5 for older environments.
 
 ## Node
 
+You only need this polyfill in Node before v11.
+However, you can use `Buffer` to provide the same functionality (but not conforming to any spec) in versions even older than that.
+
 ```js
-// don't need to save anywhere, just require before use
-require('fast-text-encoding');
+require('fast-text-encoding');  // just require me before use
 
 const buffer = new TextEncoder().encode('Turn me into UTF-8!');
 // buffer is now a Uint8Array of [84, 117, 114, 110, ...]
 ```
-
-However, note that `Buffer.from('Turn me into UTF-8!')` is Node's native version of the text encoding functionality.
-You can probably massage [`Buffer`](https://nodejs.org/api/buffer.html) into acting like `TextEncoder` and `TextDecoder`.
-
-# Supports
-
-Built for IE11, Edge and Node environments.
-Not required for Chrome, Firefox etc, which have native implementations.
 
 # Release
 
