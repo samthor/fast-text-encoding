@@ -33,7 +33,7 @@ if (scope['TextEncoder'] && scope['TextDecoder']) {
  * @param {string=} utfLabel
  */
 function FastTextEncoder(utfLabel='utf-8') {
-  if (utfLabel !== 'utf-8') {
+  if (utfLabel !== 'utf-8' && utfLabel !== 'utf8') {
     throw new RangeError(
       `Failed to construct 'TextEncoder': The encoding label provided ('${utfLabel}') is invalid.`);
   }
@@ -114,7 +114,7 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
  * @param {{fatal: boolean}=} options
  */
 function FastTextDecoder(utfLabel='utf-8', options={fatal: false}) {
-  if (utfLabel !== 'utf-8') {
+  if (utfLabel !== 'utf-8' && utfLabel !== 'utf8') {
     throw new RangeError(
       `Failed to construct 'TextDecoder': The encoding label provided ('${utfLabel}') is invalid.`);
   }
