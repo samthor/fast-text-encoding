@@ -1,3 +1,5 @@
+<img src="https://api.travis-ci.org/samthor/fast-text-encoding.svg?branch=master" />
+
 This is a fast polyfill for [`TextEncoder`][1] and [`TextDecoder`][2], which let you encode and decode JavaScript strings into UTF-8 bytes.
 
 It is fast partially as it does not support any encodings aside UTF-8 (and note that natively, only `TextDecoder` supports alternative encodings anyway).
@@ -7,25 +9,28 @@ It is fast partially as it does not support any encodings aside UTF-8 (and note 
 
 # Usage
 
-Include the minified inside a `script` tag or as an ES6 Module for its side-effects.
-It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `window`.
+Install as "fast-text-encoding" via your favourite package manager.
+
+## Browser
+
+Include the minified code inside a `script` tag or as an ES6 Module for its side effects.
+It will create `TextEncoder` and `TextDecoder` if the symbols are missing on `window` or `global.`
 
 ```html
 <script src="node_modules/fast-text-encoding/text.min.js"></script>
 <script type="module">
   import './node_modules/fast-text-encoding/text.min.js';
+  import 'fast-text-encoding';  // or perhaps this
   // confidently do something with TextEncoder \o/
 </script>
 ```
 
-**Note**: Always include `text.min.js`, as it's compiled to ES5 for older environments.
+**Note**: You want `text.min.js`, as it's compiled to ES5 for older environments.
 
 ## Node
 
-Install via NPM or Yarn (name "fast-text-encoding"), and then import purely for side effects:
-
 ```js
-// don't need to save this anywhere, just require before use
+// don't need to save anywhere, just require before use
 require('fast-text-encoding');
 
 const buffer = new TextEncoder().encode('Turn me into UTF-8!');
