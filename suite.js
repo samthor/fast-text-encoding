@@ -102,7 +102,7 @@ function tests(isNative, TextEncoder, TextDecoder) {
 
 }
 
-if (window.NativeTextEncoder && window.NativeTextDecoder) {
+if (typeof NativeTextEncoder !== 'undefined' && typeof NativeTextDecoder !== 'undefined') {
   tests(true, NativeTextEncoder, NativeTextDecoder);
 }
 tests(false, TextEncoder, TextDecoder);
