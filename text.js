@@ -98,8 +98,7 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
       target[at++] = ((value >> 12) & 0x3f) | 0x80;
       target[at++] = ((value >>  6) & 0x3f) | 0x80;
     } else {
-      // FIXME: do we care
-      continue;
+      continue;  // out of range
     }
 
     target[at++] = (value & 0x3f) | 0x80;
@@ -116,7 +115,7 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
  * @param {{fatal: boolean}=} options
  */
 function FastTextDecoder(utfLabel='utf-8', options={fatal: false}) {
-  if (validUtfLabels.indexOf(utfLabel.toLowerCase()) == -1) {
+  if (validUtfLabels.indexOf(utfLabel.toLowerCase()) === -1) {
     throw new RangeError(
       `Failed to construct 'TextDecoder': The encoding label provided ('${utfLabel}') is invalid.`);
   }
@@ -172,6 +171,10 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
       pos = 0;
     }
 
+    // The native TextDecoder will generate "REPLACEMENT CHARACTER" where the
+    // input data is invalid. Here, we blindly parse the data even if it's
+    // wrong: e.g., if a 3-byte sequence doesn't have two valid continuations.
+
     const byte1 = bytes[pos++];
     if (byte1 === 0) {
       pending.push(0);
@@ -180,11 +183,11 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
     } else if ((byte1 & 0xe0) === 0xc0) {  // 2-byte
       const byte2 = bytes[pos++] & 0x3f;
       pending.push(((byte1 & 0x1f) << 6) | byte2);
-    } else if ((byte1 & 0xf0) === 0xe0) {
+    } else if ((byte1 & 0xf0) === 0xe0) {  // 3-byte
       const byte2 = bytes[pos++] & 0x3f;
       const byte3 = bytes[pos++] & 0x3f;
       pending.push(((byte1 & 0x1f) << 12) | (byte2 << 6) | byte3);
-    } else if ((byte1 & 0xf8) === 0xf0) {
+    } else if ((byte1 & 0xf8) === 0xf0) {  // 4-byte
       const byte2 = bytes[pos++] & 0x3f;
       const byte3 = bytes[pos++] & 0x3f;
       const byte4 = bytes[pos++] & 0x3f;
@@ -199,7 +202,7 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
       }
       pending.push(codepoint);
     } else {
-      // FIXME: we're ignoring this
+      // invalid initial byte
     }
   }
 }
