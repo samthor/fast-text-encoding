@@ -141,6 +141,13 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
     throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
   }
 
+  // Look for ArrayBufferView, which isn't a real type, but basically represents
+  // all the valid TypedArray types plus DataView. They all have ".buffer" as
+  // an instance of ArrayBuffer.
+  if (buffer.buffer instanceof ArrayBuffer) {
+    buffer = buffer.buffer;
+  }
+
   const bytes = new Uint8Array(buffer);
   let pos = 0;
   const len = bytes.length;
