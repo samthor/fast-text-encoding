@@ -53,7 +53,6 @@ FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
 
   let pos = 0;
   const len = string.length;
-  const out = [];
 
   let at = 0;  // output position
   let tlen = Math.max(32, len + (len >> 1) + 7);  // 1.5x size
@@ -133,6 +132,7 @@ Object.defineProperty(FastTextDecoder.prototype, 'ignoreBOM', {value: false});
 /**
  * @param {(!ArrayBuffer|!ArrayBufferView)} buffer
  * @param {{stream: boolean}=} options
+ * @return {string}
  */
 FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
   if (options['stream']) {
@@ -149,7 +149,7 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
     if (byte1 === 0) {
       break;  // NULL
     }
-  
+
     if ((byte1 & 0x80) === 0) {  // 1-byte
       out.push(byte1);
     } else if ((byte1 & 0xe0) === 0xc0) {  // 2-byte
@@ -169,7 +169,7 @@ FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
       if (codepoint > 0xffff) {
         // codepoint &= ~0x10000;
         codepoint -= 0x10000;
-        out.push((codepoint >>> 10) & 0x3ff | 0xd800)
+        out.push((codepoint >>> 10) & 0x3ff | 0xd800);
         codepoint = 0xdc00 | codepoint & 0x3ff;
       }
       out.push(codepoint);
