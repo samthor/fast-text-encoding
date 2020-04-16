@@ -11,6 +11,7 @@
     "mocha": "^7.1.0"
   },
   "scripts": {
+    "build": "./compile.sh",
     "test": "mocha"
   }
 }
