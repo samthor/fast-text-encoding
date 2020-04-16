@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-closure-compiler                      \
+google-closure-compiler               \
 	--compilation_level ADVANCED      \
 	--js_output_file text.min.js      \
 	--language_out ECMASCRIPT5        \
