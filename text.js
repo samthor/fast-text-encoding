@@ -46,7 +46,7 @@ Object.defineProperty(FastTextEncoder.prototype, 'encoding', {value: 'utf-8'});
  * @param {{stream: boolean}=} options
  * @return {!Uint8Array}
  */
-FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
+FastTextEncoder.prototype['encode'] = function(string, options={stream: false}) {
   if (options.stream) {
     throw new Error(`Failed to encode: the 'stream' option is unsupported.`);
   }
@@ -135,7 +135,7 @@ Object.defineProperty(FastTextDecoder.prototype, 'ignoreBOM', {value: false});
  * @param {{stream: boolean}=} options
  * @return {string}
  */
-FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
+FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) {
   if (options['stream']) {
     throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
   }
