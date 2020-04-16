@@ -38,6 +38,12 @@ function tests(isNative, TextEncoder, TextDecoder) {
         }
       });
 
+      test('subarray', () => {
+        const buffer = new Uint8Array([104, 101, 108, 108, 111]);
+        const array = buffer.subarray(0, 4);
+        assert.equal(dec.decode(array), 'hell');
+      });
+
       test('null in middle', () => {
         const s = 'pad\x00pad';
         const buffer = new Uint8Array([112, 97, 100, 0, 112, 97, 100]);
