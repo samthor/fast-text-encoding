@@ -46,7 +46,7 @@ Object.defineProperty(FastTextEncoder.prototype, 'encoding', {value: 'utf-8'});
  * @param {{stream: boolean}=} options
  * @return {!Uint8Array}
  */
-FastTextEncoder.prototype.encode = function(string, options={stream: false}) {
+FastTextEncoder.prototype['encode'] = function(string, options={stream: false}) {
   if (options.stream) {
     throw new Error(`Failed to encode: the 'stream' option is unsupported.`);
   }
@@ -135,19 +135,21 @@ Object.defineProperty(FastTextDecoder.prototype, 'ignoreBOM', {value: false});
  * @param {{stream: boolean}=} options
  * @return {string}
  */
-FastTextDecoder.prototype.decode = function(buffer, options={stream: false}) {
+FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) {
   if (options['stream']) {
     throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
   }
 
+  // Accept Uint8Array's as-is.
+  let bytes = buffer;
+
   // Look for ArrayBufferView, which isn't a real type, but basically represents
   // all the valid TypedArray types plus DataView. They all have ".buffer" as
   // an instance of ArrayBuffer.
-  if (buffer.buffer instanceof ArrayBuffer) {
-    buffer = buffer.buffer;
+  if (!(bytes instanceof Uint8Array) && bytes.buffer instanceof ArrayBuffer) {
+    bytes = new Uint8Array(buffer.buffer);
   }
 
-  let bytes = new Uint8Array(buffer);
   let pos = 0;
   let pending = [];
   const chunks = [];
