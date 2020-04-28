@@ -1,4 +1,4 @@
-Benchmark code.
+Benchmark code for Node.
 Usage:
 
 ```bash
@@ -15,6 +15,14 @@ This has a ratio of "bytes-to-length" of 0.35.
 This is an odd number, but we're comparing the on-disk UTF-8 bytes (which optimize for ASCII and other low Unicode values) to the length of JavaScript's UCS-2 / UTF-16 internal representation.
 All Unicode code points can be represented as either one or two "lengths" of a JavaScript string, but each code point can be between 1-4 bytes in UTF-8.
 The possible ratios therefore range from 0.25 (e.g., all emoji) through 1.0 (e.g., ASCII).
+
+# Options
+
+By default, the benchmark tool disables and removes native-like implementations in Node.
+It removes `Buffer` plus the native `TextEncoder` and `TextDecoder` from the global scope.
+
+Use `--native` to enable support for them.
+This will speed up `fast-text-encoding`, as it uses `Buffer` when available.
 
 # Results
 
