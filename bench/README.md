@@ -10,11 +10,12 @@ Usage:
 If you don't provide a source file, or specify a length instead, this will generate actual random text in JavaScript.
 
 For a better test, use suggested UTF-8 encoded source text from [Project Gutenberg](https://www.gutenberg.org/files/23841/23841-0.txt).
-This has a ratio of "bytes-to-length" of 0.35.
+The linked file has a ratio of "bytes-to-length" of 0.35.
 
-This is an odd number, but we're comparing the on-disk UTF-8 bytes (which optimize for ASCII and other low Unicode values) to the length of JavaScript's UCS-2 / UTF-16 internal representation.
+This ratio is an odd number.
+It compares the on-disk UTF-8 bytes (which optimize for ASCII and other low Unicode values) to the length of JavaScript's UCS-2 / UTF-16 internal representation.
 All Unicode code points can be represented as either one or two "lengths" of a JavaScript string, but each code point can be between 1-4 bytes in UTF-8.
-The possible ratios therefore range from 0.25 (e.g., all emoji) through 1.0 (e.g., ASCII).
+The valid ratios therefore range from ⅓ through 1.0 (e.g., ASCII).
 
 # Options
 
