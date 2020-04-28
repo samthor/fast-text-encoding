@@ -5,7 +5,21 @@ const chalk = require('chalk');
 const fs = require('fs');
 
 const packages = ['fast-text-encoding', 'text-encoding', 'text-encoding-polyfill', 'text-encoding-utf-8', 'fastestsmallesttextencoderdecoder'];
-const runs = 8;
+const runs = 6;
+const includeNative = true;
+
+if (!includeNative) {
+  if (global.TextEncoder && global.TextDecoder) {
+    global.TextEncoder.prototype.encode = () => {
+      throw new Error('use of native encode()');
+    };
+    global.TextDecoder.prototype.decode = () => {
+      throw new Error('use of native decode()');
+    };
+  }
+  delete global.TextEncoder;
+  delete global.TextDecoder;
+}
 
 function buildRandomString(length) {
   const parts = [];
@@ -17,6 +31,7 @@ function buildRandomString(length) {
 }
 
 let string;
+let buf = null;
 
 if (+process.argv[2] || process.argv.length < 3) {
   // possibly a number
@@ -24,6 +39,7 @@ if (+process.argv[2] || process.argv.length < 3) {
   console.info(`compare (random): length=${chalk.yellow(string.length)}`);
 } else {
   const stat = fs.statSync(process.argv[2]);
+  buf = fs.readFileSync(process.argv[2]);  // no encoding, as Buffer
   string = fs.readFileSync(process.argv[2], 'utf-8');
   const ratio = (string.length / stat.size);
   console.info(`compare (file): length=${chalk.yellow(string.length)}, bytes=${chalk.yellow(stat.size)} (ratio=${chalk.yellow(ratio.toFixed(2))})`);
@@ -32,7 +48,9 @@ if (+process.argv[2] || process.argv.length < 3) {
 // remove 'text-encoding-utf-8' after a certain size as it's just pathologically bad
 if (string.length >= 32768) {
   const index = packages.indexOf('text-encoding-utf-8');
-  packages.splice(index, 1);
+  if (index !== -1) {
+    packages.splice(index, 1);
+  }
 }
 
 console.info('');
@@ -74,6 +92,19 @@ for (const name of packages) {
   impl[name] = use;
 }
 
+do {
+  delete global.TextDecoder;
+  delete global.TextEncoder;
+
+  packages.push('.local');
+  require('../text.min.js');
+  impl['.local'] = {TextEncoder: global.TextEncoder, TextDecoder: global.TextDecoder};
+} while (false);
+
+delete global.TextDecoder;
+delete global.TextEncoder;
+
+
 if (hasNative) {
   packages.push('.native');
   impl['.native'] = nativeImpl;
@@ -86,9 +117,6 @@ if (hasNative) {
     console.info('run', (i + 1));
   
     for (const name of packages) {
-      delete global.TextDecoder;
-      delete global.TextEncoder;
-  
       console.debug(chalk.gray(name));
       const use = impl[name];
   
