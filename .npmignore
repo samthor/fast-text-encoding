@@ -1,2 +1,3 @@
 test.*
 suite.*
+bench/
