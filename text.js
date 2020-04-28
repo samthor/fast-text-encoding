@@ -143,13 +143,15 @@ function decodeBuffer(bytes) {
  * @return {string}
  */
 function decodeSyncXHR(bytes) {
-  const b = new Blob([bytes]);
+  const b = new Blob([bytes], {type: 'text/plain;charset=UTF-8'});
   const u = URL.createObjectURL(b);
 
+  // This hack will fail in non-Edgium Edge because sync XHRs are disabled (and
+  // possibly in other places), so ensure there's a fallback call.
   try {
     const x = new XMLHttpRequest();
     x.open('GET', u, false);
-    x.send(null);
+    x.send();
     return x.responseText;
   } catch (e) {
     return decodeFallback(bytes);
@@ -239,9 +241,7 @@ if (typeof Buffer === 'function' && Buffer.from) {
 } else if (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function') {
   // Blob and URL.createObjectURL are available from IE10, Safari 6, Chrome 19
   // (all released in 2012), Firefox 19 (2013), ...
-
-  // TODO(samthor): I should probably check that this hack works in IE10 before shipping it.
-  // decodeImpl = decodeXHR;
+  decodeImpl = decodeSyncXHR;
 }
 
 /**
