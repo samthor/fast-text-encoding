@@ -89,7 +89,7 @@ FastTextEncoder.prototype['encode'] = function(string, options={stream: false}) 
       target[at++] = value;  // ASCII
       continue;
     } else if ((value & 0xfffff800) === 0) {  // 2-byte
-      target[at++] = ((value >>> 6) & 0x1f) | 0xc0;
+      target[at++] = ((value >>>  6) & 0x1f) | 0xc0;
     } else if ((value & 0xffff0000) === 0) {  // 3-byte
       target[at++] = ((value >>> 12) & 0x0f) | 0xe0;
       target[at++] = ((value >>>  6) & 0x3f) | 0x80;
@@ -131,32 +131,46 @@ Object.defineProperty(FastTextDecoder.prototype, 'fatal', {value: false});
 Object.defineProperty(FastTextDecoder.prototype, 'ignoreBOM', {value: false});
 
 /**
- * @param {(!ArrayBuffer|!ArrayBufferView)} buffer
- * @param {{stream: boolean}=} options
+ * @param {!Uint8Array} bytes
  * @return {string}
  */
-FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) {
-  if (options['stream']) {
-    throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
-  }
+function decodeBuffer(bytes) {
+  return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('utf-8');
+}
 
-  // Accept Uint8Array instances as-is.
-  let bytes = buffer;
+/**
+ * @param {!Uint8Array} bytes
+ * @return {string}
+ */
+function decodeSyncXHR(bytes) {
+  const b = new Blob([bytes]);
+  const u = URL.createObjectURL(b);
+
+  try {
+    const x = new XMLHttpRequest();
+    x.open('GET', u, false);
+    x.send(null);
+    return x.responseText;
+  } catch (e) {
+    return decodeFallback(bytes);
+  } finally {
+    URL.revokeObjectURL(u);
+  }
+}
+
+/**
+ * @param {!Uint8Array} bytes
+ * @return {string}
+ */
+function decodeFallback(bytes) {
   let inputIndex = 0;
-
-  // Look for ArrayBufferView, which isn't a real type, but basically represents
-  // all the valid TypedArray types plus DataView. They all have ".buffer" as
-  // an instance of ArrayBuffer.
-  if (!(bytes instanceof Uint8Array) && bytes.buffer instanceof ArrayBuffer) {
-    bytes = new Uint8Array(buffer.buffer);
-  }
 
   // Create a working buffer for UTF-16 code points, but don't generate one
   // which is too large for small input sizes. UTF-8 to UCS-16 conversion is
   // going to be at most 1:1, if all code points are ASCII. The other extreme
   // is 4-byte UTF-8, which results in two UCS-16 points, but this is still 50%
   // fewer entries in the output.
-  const pendingSize = Math.min(256 * 256, buffer.length + 1);
+  const pendingSize = Math.min(256 * 256, bytes.length + 1);
   const pending = new Uint16Array(pendingSize);
   const chunks = [];
   let pendingIndex = 0;
@@ -215,6 +229,42 @@ FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) 
       // invalid initial byte
     }
   }
+}
+
+// Decoding a string is pretty slow, but use alternative options where possible.
+let decodeImpl = decodeFallback;
+if (typeof Buffer === 'function' && Buffer.from) {
+  // Buffer.from was added in Node v5.10.0 (2015-11-17).
+  decodeImpl = decodeBuffer;
+} else if (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function') {
+  // Blob and URL.createObjectURL are available from IE10, Safari 6, Chrome 19
+  // (all released in 2012), Firefox 19 (2013), ...
+
+  // TODO(samthor): I should probably check that this hack works in IE10 before shipping it.
+  // decodeImpl = decodeXHR;
+}
+
+/**
+ * @param {(!ArrayBuffer|!ArrayBufferView)} buffer
+ * @param {{stream: boolean}=} options
+ * @return {string}
+ */
+FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) {
+  if (options['stream']) {
+    throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
+  }
+
+  // Accept Uint8Array instances as-is.
+  let bytes = buffer;
+
+  // Look for ArrayBufferView, which isn't a real type, but basically represents
+  // all the valid TypedArray types plus DataView. They all have ".buffer" as
+  // an instance of ArrayBuffer.
+  if (!(bytes instanceof Uint8Array) && bytes.buffer instanceof ArrayBuffer) {
+    bytes = new Uint8Array(buffer.buffer);
+  }
+
+  return decodeImpl(/** @type {!Uint8Array} */ (bytes));
 }
 
 scope['TextEncoder'] = FastTextEncoder;

@@ -42,6 +42,8 @@ const buffer = new TextEncoder().encode('Turn me into UTF-8!');
 // buffer is now a Uint8Array of [84, 117, 114, 110, ...]
 ```
 
+In Node v5.1 and above, this polyfill uses `Buffer` to implement `TextDecoder`.
+
 # Release
 
 Compile code with [Closure Compiler](https://closure-compiler.appspot.com/home).
