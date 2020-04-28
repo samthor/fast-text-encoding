@@ -3,12 +3,24 @@
 const {performance} = require('perf_hooks');
 const chalk = require('chalk');
 const fs = require('fs');
+const mri = require('mri');
+
+const options = mri(process.argv.slice(2), {
+  default: {
+    runs: 6,
+    native: false,
+  },
+});
 
 const packages = ['fast-text-encoding', 'text-encoding', 'text-encoding-polyfill', 'text-encoding-utf-8', 'fastestsmallesttextencoderdecoder'];
-const runs = 6;
-const includeNative = true;
 
-if (!includeNative) {
+if (!options.native) {
+  global.Buffer.from = () => {
+    throw new Error('use of Buffer.from');
+  };
+  delete global.Buffer;
+  console.warn('NOT including any native code...');
+
   if (global.TextEncoder && global.TextDecoder) {
     global.TextEncoder.prototype.encode = () => {
       throw new Error('use of native encode()');
@@ -31,16 +43,15 @@ function buildRandomString(length) {
 }
 
 let string;
-let buf = null;
 
-if (+process.argv[2] || process.argv.length < 3) {
+const firstArg = options._[0];
+if (firstArg === undefined || +firstArg) {
   // possibly a number
-  string = buildRandomString(+process.argv[2] || (256 * 256));
+  string = buildRandomString(+firstArg || (256 * 256));
   console.info(`compare (random): length=${chalk.yellow(string.length)}`);
 } else {
-  const stat = fs.statSync(process.argv[2]);
-  buf = fs.readFileSync(process.argv[2]);  // no encoding, as Buffer
-  string = fs.readFileSync(process.argv[2], 'utf-8');
+  const stat = fs.statSync(firstArg);
+  string = fs.readFileSync(firstArg, 'utf-8');
   const ratio = (string.length / stat.size);
   console.info(`compare (file): length=${chalk.yellow(string.length)}, bytes=${chalk.yellow(stat.size)} (ratio=${chalk.yellow(ratio.toFixed(2))})`);
 }
@@ -96,9 +107,13 @@ do {
   delete global.TextDecoder;
   delete global.TextEncoder;
 
-  packages.push('.local');
-  require('../text.min.js');
-  impl['.local'] = {TextEncoder: global.TextEncoder, TextDecoder: global.TextDecoder};
+  try {
+    require('../text.min.js');
+    packages.push('.local');
+    impl['.local'] = {TextEncoder: global.TextEncoder, TextDecoder: global.TextDecoder};
+  } catch (e) {
+    // ignore
+  }
 } while (false);
 
 delete global.TextDecoder;
@@ -112,7 +127,7 @@ if (hasNative) {
 
 (async function() {
 
-  for (let i = 0; i < runs; ++i) {
+  for (let i = 0; i < options.runs; ++i) {
     shuffle(packages);
     console.info('run', (i + 1));
   

@@ -3,6 +3,7 @@
     "chalk": "^4.0.0",
     "fast-text-encoding": "^1.0.2",
     "fastestsmallesttextencoderdecoder": "^1.0.21",
+    "mri": "^1.1.5",
     "text-encoding": "^0.7.0",
     "text-encoding-polyfill": "^0.6.7",
     "text-encoding-utf-8": "^1.0.2"
