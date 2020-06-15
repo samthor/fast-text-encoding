@@ -24,6 +24,9 @@ function tests(isNative, TextEncoder, TextDecoder) {
       test('basic', () => {
         const buffer = new Uint8Array([104, 101, 108, 108, 111]);
         assert.equal(dec.decode(buffer), 'hello');
+
+        // Ensure that we can decode an ArrayBuffer too.
+        assert.equal(dec.decode(buffer.buffer), 'hello');
       });
 
       test('constructor', () => {

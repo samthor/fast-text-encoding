@@ -254,14 +254,25 @@ FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) 
     throw new Error(`Failed to decode: the 'stream' option is unsupported.`);
   }
 
-  // Accept Uint8Array instances as-is.
-  let bytes = buffer;
+  let bytes;
 
+  // Accept Uint8Array instances as-is.
+  if (buffer instanceof Uint8Array) {
+    bytes = buffer;
+  }
+  // Deal with the buffer being an instance of an ArrayBuffer, converting it as
+  // we do.
+  else if(buffer instanceof ArrayBuffer) {
+    bytes = new Uint8Array(buffer);
+  }
   // Look for ArrayBufferView, which isn't a real type, but basically represents
   // all the valid TypedArray types plus DataView. They all have ".buffer" as
   // an instance of ArrayBuffer.
-  if (!(bytes instanceof Uint8Array) && bytes.buffer instanceof ArrayBuffer) {
+  else if (buffer.buffer instanceof ArrayBuffer) {
     bytes = new Uint8Array(buffer.buffer);
+  }
+  else {
+    bytes = new Uint8Array(0);
   }
 
   return decodeImpl(/** @type {!Uint8Array} */ (bytes));
