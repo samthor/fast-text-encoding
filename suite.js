@@ -16,14 +16,41 @@ function tests(isNative, TextEncoder, TextDecoder) {
       const out = dec.decode(buffer);
 
       assert.equal(out, s);
-
     });
 
     suite('decoder', () => {
 
       test('basic', () => {
         const buffer = new Uint8Array([104, 101, 108, 108, 111]);
-        assert.equal(dec.decode(buffer), 'hello');
+        assert.equal(dec.decode(buffer), 'hello', 'directly Uint8Array');
+        assert.equal(dec.decode(buffer.buffer), 'hello', 'pass underlying ArrayBuffer');
+      });
+
+      test('non-8 backing', () => {
+        // If passed a Uint32Array, TextDecoder will still decode the real
+        // underlying bytes. Source data must be aligned.
+        const padded = new Uint8Array([104, 101, 108, 108, 111, 33, 46, 46]);
+        const u32 = new Uint32Array(padded.buffer);
+        assert.equal(padded.length >> 2, u32.length, 'u32 must be 1/4 of real data');
+        assert.equal(dec.decode(u32), 'hello!..', 'pass Uint32Array');
+        assert.equal(dec.decode(u32.buffer), 'hello!..', 'pass Uint32Array\'s buffer');
+
+        // Ensure that we don't parse larger typed arrays as uint8's. We expect
+        // nulls here to pad out the remaining three bytes in every word.
+        const u32raw = new Uint32Array([104, 105, 33, 46]);
+        assert.equal(dec.decode(u32raw), 'h\0\0\0i\0\0\0!\0\0\0.\0\0\0', 'u32 with nulls');
+      });
+
+      test('arraylike', () => {
+        const arr = [104, 101, 108, 108, 111];
+
+        if (isNative) {
+          // Native can't take Array.
+          assert.throws(() => dec.decode(arr));
+        } else {
+          // Polyfill can accept Array or array-like.
+          assert.equal(dec.decode(arr), 'hello', 'decode arraylike');
+        }
       });
 
       test('constructor', () => {
