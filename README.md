@@ -1,4 +1,4 @@
-[![Build](https://api.travis-ci.org/samthor/fast-text-encoding.svg?branch=master)](https://travis-ci.org/samthor/fast-text-encoding)
+[![Test](https://github.com/samthor/fast-text-encoding/actions/workflows/node.js.yml/badge.svg)](https://github.com/samthor/fast-text-encoding/actions/workflows/node.js.yml)
 
 This is a fast polyfill for [`TextEncoder`][1] and [`TextDecoder`][2], which let you encode and decode JavaScript strings into UTF-8 bytes.
 
