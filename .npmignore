@@ -1,3 +1,6 @@
+.github/
+*.sh
 test.*
+test-setup.*
 suite.*
 bench/
