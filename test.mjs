@@ -17,16 +17,16 @@ import assert from 'node:assert';
  * @param {typeof TextEncoder} TextEncoder
  * @param {typeof TextDecoder} TextDecoder
  */
-export function tests(isNative, TextEncoder, TextDecoder) {
+export async function tests(isNative, TextEncoder, TextDecoder) {
   const dec = new TextDecoder();
   const enc = new TextEncoder('utf-8');
 
   console.info('running', { isNative, TextEncoder, TextDecoder });
 
-  test(isNative ? 'native suite' : 'polyfill suite', async (c) => {
+  await test(isNative ? 'native suite' : 'polyfill suite', async (c) => {
     const test = c.test.bind(c);
 
-    await test('really large string', () => {
+    await test('really large string', async () => {
       const chunks = new Array(64);
       for (let i = 0; i < chunks.length; ++i) {
         const s = new Array(65535).fill('x'.charCodeAt(0));
@@ -106,6 +106,10 @@ export function tests(isNative, TextEncoder, TextDecoder) {
         assert.deepEqual(dec.decode(buffer), s);
       });
 
+      await test('nodejs encodings', () => {
+        const d = new TextDecoder('utf16le');
+      });
+
     });
 
     await test('encoder', async (c) => {
@@ -160,5 +164,5 @@ export function tests(isNative, TextEncoder, TextDecoder) {
 }
 
 
-tests(true, NativeTextEncoder, NativeTextDecoder);
-tests(false, TextEncoder, TextDecoder);
+await tests(true, NativeTextEncoder, NativeTextDecoder);
+await tests(false, TextEncoder, TextDecoder);

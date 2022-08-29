@@ -28,6 +28,17 @@ if (scope['TextEncoder'] && scope['TextDecoder']) {
   return false;
 }
 
+// Decoding a string is pretty slow, but use alternative options where possible.
+let decodeImpl = decodeFallback;
+if (typeof Buffer === 'function' && Buffer.from) {
+  // Buffer.from was added in Node v5.10.0 (2015-11-17).
+  decodeImpl = decodeBuffer;
+} else if (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function') {
+  // Blob and URL.createObjectURL are available from IE10, Safari 6, Chrome 19
+  // (all released in 2012), Firefox 19 (2013), ...
+  decodeImpl = decodeSyncXHR;
+}
+
 // used for FastTextDecoder
 const validUtfLabels = ['utf-8', 'utf8', 'unicode-1-1-utf-8'];
 
@@ -115,16 +126,22 @@ FastTextEncoder.prototype['encode'] = function(string, options={stream: false}) 
  * @param {{fatal: boolean}=} options
  */
 function FastTextDecoder(utfLabel='utf-8', options={fatal: false}) {
-  if (validUtfLabels.indexOf(utfLabel.toLowerCase()) === -1) {
+  /** @type {boolean} */
+  let ok;
+  if (decodeImpl === decodeBuffer) {
+    ok = Buffer.isEncoding(utfLabel);
+  } else {
+    ok = validUtfLabels.indexOf(utfLabel.toLowerCase()) !== -1;
+  }
+  if (!ok) {
     throw new RangeError(
       `Failed to construct 'TextDecoder': The encoding label provided ('${utfLabel}') is invalid.`);
   }
   if (options.fatal) {
     throw new Error(`Failed to construct 'TextDecoder': the 'fatal' option is unsupported.`);
   }
+  this.encoding = utfLabel;
 }
-
-Object.defineProperty(FastTextDecoder.prototype, 'encoding', {value: 'utf-8'});
 
 Object.defineProperty(FastTextDecoder.prototype, 'fatal', {value: false});
 
@@ -132,10 +149,18 @@ Object.defineProperty(FastTextDecoder.prototype, 'ignoreBOM', {value: false});
 
 /**
  * @param {!Uint8Array} bytes
+ * @param {string} encoding
  * @return {string}
  */
-function decodeBuffer(bytes) {
-  return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('utf-8');
+function decodeBuffer(bytes, encoding) {
+  /** @type {Buffer} */
+  let b;
+  if (bytes instanceof Buffer) {
+    b = bytes;
+  } else {
+    b = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  }
+  return b.toString(encoding);
 }
 
 /**
@@ -237,17 +262,6 @@ function decodeFallback(bytes) {
   }
 }
 
-// Decoding a string is pretty slow, but use alternative options where possible.
-let decodeImpl = decodeFallback;
-if (typeof Buffer === 'function' && Buffer.from) {
-  // Buffer.from was added in Node v5.10.0 (2015-11-17).
-  decodeImpl = decodeBuffer;
-} else if (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function') {
-  // Blob and URL.createObjectURL are available from IE10, Safari 6, Chrome 19
-  // (all released in 2012), Firefox 19 (2013), ...
-  decodeImpl = decodeSyncXHR;
-}
-
 /**
  * @param {(!ArrayBuffer|!ArrayBufferView)} buffer
  * @param {{stream: boolean}=} options
@@ -261,7 +275,7 @@ FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) 
   let bytes;
 
   if (buffer instanceof Uint8Array) {
-    // Accept Uint8Array instances as-is.
+    // Accept Uint8Array instances as-is. This is also a Node buffer.
     bytes = buffer;
   } else if (buffer.buffer instanceof ArrayBuffer) {
     // Look for ArrayBufferView, which isn't a real type, but basically
@@ -275,7 +289,7 @@ FastTextDecoder.prototype['decode'] = function(buffer, options={stream: false}) 
     bytes = new Uint8Array(buffer);
   }
 
-  return decodeImpl(/** @type {!Uint8Array} */ (bytes));
+  return decodeImpl(/** @type {!Uint8Array} */ (bytes), this.encoding);
 }
 
 scope['TextEncoder'] = FastTextEncoder;
