@@ -3,7 +3,7 @@ import { encodeFallback } from './lowlevel.js';
 import { maybeThrowFailedToOption } from './shared.js';
 import { hasBufferFrom } from './support.js';
 
-export const encodeImpl = hasBufferFrom ? encodeFallback : encodeBuffer;
+export var encodeImpl = hasBufferFrom ? encodeFallback : encodeBuffer;
 
 /**
  * @constructor

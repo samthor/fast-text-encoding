@@ -1,2 +1,2 @@
 
-export const hasBufferFrom = (typeof Buffer === 'function' && Buffer.from);
+export var hasBufferFrom = (typeof Buffer === 'function' && Buffer.from);

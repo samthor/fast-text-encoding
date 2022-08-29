@@ -6,8 +6,9 @@
  */
 export function decodeBuffer(bytes, encoding) {
   /** @type {Buffer} */
-  let b;
+  var b;
   if (bytes instanceof Buffer) {
+    // @ts-ignore
     b = bytes;
   } else {
     b = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -20,4 +21,4 @@ export function decodeBuffer(bytes, encoding) {
  * @param {string} string
  * @return {Uint8Array}
  */
-export const encodeBuffer = (string) => Buffer.from(string);
+export var encodeBuffer = (string) => Buffer.from(string);

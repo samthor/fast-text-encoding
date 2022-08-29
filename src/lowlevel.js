@@ -4,20 +4,20 @@
  * @return {string}
  */
 export function decodeFallback(bytes) {
-  let inputIndex = 0;
+  var inputIndex = 0;
 
   // Create a working buffer for UTF-16 code points, but don't generate one
   // which is too large for small input sizes. UTF-8 to UCS-16 conversion is
   // going to be at most 1:1, if all code points are ASCII. The other extreme
   // is 4-byte UTF-8, which results in two UCS-16 points, but this is still 50%
   // fewer entries in the output.
-  const pendingSize = Math.min(256 * 256, bytes.length + 1);
-  const pending = new Uint16Array(pendingSize);
-  const chunks = [];
-  let pendingIndex = 0;
+  var pendingSize = Math.min(256 * 256, bytes.length + 1);
+  var pending = new Uint16Array(pendingSize);
+  var chunks = [];
+  var pendingIndex = 0;
 
   for (; ;) {
-    const more = inputIndex < bytes.length;
+    var more = inputIndex < bytes.length;
 
     // If there's no more data or there'd be no room for two UTF-16 values,
     // create a chunk. This isn't done at the end by simply slicing the data
@@ -28,8 +28,8 @@ export function decodeFallback(bytes) {
       // the output code expands pretty fast in this case.
       // These extra vars get compiled out: they're just to make TS happy.
       // Turns out you can pass an ArrayLike to .apply().
-      const subarray = pending.subarray(0, pendingIndex);
-      const arraylike = /** @type {number[]} */ (/** @type {unknown} */ (subarray));
+      var subarray = pending.subarray(0, pendingIndex);
+      var arraylike = /** @type {number[]} */ (/** @type {unknown} */ (subarray));
       chunks.push(String.fromCharCode.apply(null, arraylike));
 
       if (!more) {
@@ -46,23 +46,23 @@ export function decodeFallback(bytes) {
     // input data is invalid. Here, we blindly parse the data even if it's
     // wrong: e.g., if a 3-byte sequence doesn't have two valid continuations.
 
-    const byte1 = bytes[inputIndex++];
+    var byte1 = bytes[inputIndex++];
     if ((byte1 & 0x80) === 0) {  // 1-byte or null
       pending[pendingIndex++] = byte1;
     } else if ((byte1 & 0xe0) === 0xc0) {  // 2-byte
-      const byte2 = bytes[inputIndex++] & 0x3f;
+      var byte2 = bytes[inputIndex++] & 0x3f;
       pending[pendingIndex++] = ((byte1 & 0x1f) << 6) | byte2;
     } else if ((byte1 & 0xf0) === 0xe0) {  // 3-byte
-      const byte2 = bytes[inputIndex++] & 0x3f;
-      const byte3 = bytes[inputIndex++] & 0x3f;
+      var byte2 = bytes[inputIndex++] & 0x3f;
+      var byte3 = bytes[inputIndex++] & 0x3f;
       pending[pendingIndex++] = ((byte1 & 0x1f) << 12) | (byte2 << 6) | byte3;
     } else if ((byte1 & 0xf8) === 0xf0) {  // 4-byte
-      const byte2 = bytes[inputIndex++] & 0x3f;
-      const byte3 = bytes[inputIndex++] & 0x3f;
-      const byte4 = bytes[inputIndex++] & 0x3f;
+      var byte2 = bytes[inputIndex++] & 0x3f;
+      var byte3 = bytes[inputIndex++] & 0x3f;
+      var byte4 = bytes[inputIndex++] & 0x3f;
 
       // this can be > 0xffff, so possibly generate surrogates
-      let codepoint = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0c) | (byte3 << 0x06) | byte4;
+      var codepoint = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0c) | (byte3 << 0x06) | byte4;
       if (codepoint > 0xffff) {
         // codepoint &= ~0x10000;
         codepoint -= 0x10000;
@@ -82,19 +82,19 @@ export function decodeFallback(bytes) {
  * @return {Uint8Array}
  */
 export function encodeFallback(string) {
-  let pos = 0;
-  const len = string.length;
+  var pos = 0;
+  var len = string.length;
 
-  let at = 0;  // output position
-  let tlen = Math.max(32, len + (len >>> 1) + 7);  // 1.5x size
-  let target = new Uint8Array((tlen >>> 3) << 3);  // ... but at 8 byte offset
+  var at = 0;  // output position
+  var tlen = Math.max(32, len + (len >>> 1) + 7);  // 1.5x size
+  var target = new Uint8Array((tlen >>> 3) << 3);  // ... but at 8 byte offset
 
   while (pos < len) {
-    let value = string.charCodeAt(pos++);
+    var value = string.charCodeAt(pos++);
     if (value >= 0xd800 && value <= 0xdbff) {
       // high surrogate
       if (pos < len) {
-        const extra = string.charCodeAt(pos);
+        var extra = string.charCodeAt(pos);
         if ((extra & 0xfc00) === 0xdc00) {
           ++pos;
           value = ((value & 0x3ff) << 10) + (extra & 0x3ff) + 0x10000;
@@ -111,7 +111,7 @@ export function encodeFallback(string) {
       tlen *= (1.0 + (pos / string.length) * 2);  // take 2x the remaining
       tlen = (tlen >>> 3) << 3;  // 8 byte offset
 
-      const update = new Uint8Array(tlen);
+      var update = new Uint8Array(tlen);
       update.set(target);
       target = update;
     }

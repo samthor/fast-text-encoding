@@ -4,11 +4,11 @@ import { failedToString, maybeThrowFailedToOption } from './shared.js';
 import { hasBufferFrom } from './support.js';
 import { decodeSyncXHR } from './xhr.js';
 
-const trySyncXHR = !hasBufferFrom && (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function');
-const validUtfLabels = ['utf-8', 'utf8', 'unicode-1-1-utf-8'];
+var trySyncXHR = !hasBufferFrom && (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function');
+var validUtfLabels = ['utf-8', 'utf8', 'unicode-1-1-utf-8'];
 
 /** @type {(bytes: Uint8Array, encoding: string) => string} */
-let decodeImpl = decodeFallback;
+var decodeImpl = decodeFallback;
 if (hasBufferFrom) {
   decodeImpl = decodeBuffer;
 } else if (trySyncXHR) {
@@ -22,8 +22,8 @@ if (hasBufferFrom) {
 }
 
 
-const ctorString = `construct 'TextDecoder'`;
-const errorPrefix = `${failedToString} ${ctorString}: the `;
+var ctorString = `construct 'TextDecoder'`;
+var errorPrefix = `${failedToString} ${ctorString}: the `;
 
 
 /**
@@ -31,11 +31,13 @@ const errorPrefix = `${failedToString} ${ctorString}: the `;
  * @param {string=} utfLabel
  * @param {{fatal: boolean}=} options
  */
-export function FastTextDecoder(utfLabel = 'utf-8', options) {
+export function FastTextDecoder(utfLabel, options) {
   maybeThrowFailedToOption(options && options.fatal, ctorString, 'fatal');
 
+  utfLabel = utfLabel || 'utf-8';
+
   /** @type {boolean} */
-  let ok;
+  var ok;
   if (hasBufferFrom) {
     ok = Buffer.isEncoding(utfLabel);
   } else {
@@ -58,7 +60,7 @@ export function FastTextDecoder(utfLabel = 'utf-8', options) {
 FastTextDecoder.prototype.decode = function (buffer, options) {
   maybeThrowFailedToOption(options && options.stream, 'decode', 'stream');
 
-  let bytes;
+  var bytes;
 
   if (buffer instanceof Uint8Array) {
     // Accept Uint8Array instances as-is. This is also a Node buffer.
