@@ -22,7 +22,8 @@ if (hasBufferFrom) {
 }
 
 
-const errorPrefix = `${failedToString} construct 'TextDecoder': the `;
+const ctorString = `construct 'TextDecoder'`;
+const errorPrefix = `${failedToString} ${ctorString}: the `;
 
 
 /**
@@ -31,7 +32,7 @@ const errorPrefix = `${failedToString} construct 'TextDecoder': the `;
  * @param {{fatal: boolean}=} options
  */
 export function FastTextDecoder(utfLabel = 'utf-8', options) {
-  maybeThrowFailedToOption(options && options.fatal, `construct 'TextDecoder'`, 'fatal');
+  maybeThrowFailedToOption(options && options.fatal, ctorString, 'fatal');
 
   /** @type {boolean} */
   let ok;

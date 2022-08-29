@@ -7,6 +7,7 @@
     // both to e.g., "es2017"
     "module": "esnext",
     "target": "esnext",
+    "moduleResolution": "node",
 
     // configure as you like: these are my preferred defaults!
     "strict": true,
@@ -20,5 +21,6 @@
   "include": [
     // include the JS files you'd like to check here
     "src/**/*.js",
+    "*.js",
   ],
 }
