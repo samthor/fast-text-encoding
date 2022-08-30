@@ -5,12 +5,14 @@
 import {
   NativeTextEncoder,
   NativeTextDecoder,
-} from './test-setup.mjs';
+} from './test-setup.js';
 
-import './text.js';
+import './text.min.js';
+
+import { decodeFallback, encodeFallback } from './src/lowlevel.js';
 
 import test from 'node:test';
-import assert from 'node:assert';
+import * as assert from 'node:assert';
 
 /**
  * @param {boolean} isNative
@@ -106,8 +108,15 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
         assert.deepEqual(dec.decode(buffer), s);
       });
 
+      // Since this is being run in Node, this should work.
       await test('nodejs encodings', () => {
-        const d = new TextDecoder('utf16le');
+        if (typeof window === 'undefined') {
+          new TextDecoder('utf-16le');
+        } else {
+          assert.throws(() => {
+            new TextDecoder('utf-16le');
+          });
+        }
       });
 
     });
@@ -166,3 +175,15 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
 
 await tests(true, NativeTextEncoder, NativeTextDecoder);
 await tests(false, TextEncoder, TextDecoder);
+
+
+
+await test('always lowlevel', () => {
+  const src = 'hello there ƒåcé zing';
+
+  const b = encodeFallback(src);
+  const out = decodeFallback(b);
+
+  assert.equal(src, out);
+});
+

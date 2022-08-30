@@ -3,43 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
-<script src="node_modules/mocha/mocha.js"></script>
-<script src="node_modules/chai/chai.js"></script>
-<script>
-  window.NativeTextDecoder = window.TextDecoder;
-  window.NativeTextEncoder = window.TextEncoder;
-  window.TextDecoder = null;
-  window.TextEncoder = null;
-</script>
-<script src="text.js"></script>
-<script>
+<script type="module">
 
-var assert = chai.assert;
-mocha.setup({ ui: 'tdd' });
+import {
+  NativeTextEncoder,
+  NativeTextDecoder,
+} from './test-setup.js';
 
-(function() {
-  var pageError = null;
+import './text.min.js';
 
-  window.addEventListener('error', function(event) {
-    pageError = event.filename + ':' + event.lineno + ' ' + event.message;
-  });
-
-  window.addEventListener('load', function() {
-    if (pageError) {
-      suite('page-script-errors', function() {
-        test('no script errors on page', function() {
-          assert.fail(null, null, pageError);
-        });
-      });
-    }
-    mocha.run();
-  });
-})();
+window._NativeTextEncoder = NativeTextEncoder;
+window._NativeTextDecoder = NativeTextDecoder;
 
 </script>
 </head>
 <body>
-<div id="mocha"></div>
-<script src="suite.js"></script>
+
+
+
 </body>
 </html>
