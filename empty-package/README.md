@@ -1,0 +1,1 @@
+This is an intentionally empty package in case you don't need `fast-text-encoding`.

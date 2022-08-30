@@ -1,0 +1,9 @@
+{
+  "name": "fast-text-encoding",
+  "version": "0.0.0-empty",
+  "description": "Empty version of `fast-text-encoding`",
+  "main": "empty.js",
+  "repository": "https://github.com/samthor/fast-text-encoding.git",
+  "author": "Sam Thorogood <sam.thorogood@gmail.com>",
+  "license": "Apache-2.0"
+}
