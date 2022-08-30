@@ -7,7 +7,7 @@ See [some benchmarks](https://github.com/samthor/fast-text-encoding/tree/master/
 
 <small>
 
-^If this is run on Node v5.1 through v11 (when `Text...` was introduced), then this simply wraps `Buffer`, which supports many encodings and is native code.
+^If this polyfill used on Node v5.1 through v11 (when `Text...` was introduced), then this simply wraps `Buffer`, which supports many encodings and is native code.
 
 </small>
 
