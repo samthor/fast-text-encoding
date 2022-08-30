@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<link rel="stylesheet" href="node_modules/mocha/mocha.css" />
 <script type="module">
 
 import {
@@ -14,6 +13,14 @@ import './text.min.js';
 
 window._NativeTextEncoder = NativeTextEncoder;
 window._NativeTextDecoder = NativeTextDecoder;
+
+
+const src = 'hello t£¡™fgafsadknl1\x00here ™£a';
+
+const b = new TextEncoder().encode(src);
+const o = new TextDecoder().decode(b);
+console.info('b', b, 'out', o, 'eq', o === src);
+
 
 </script>
 </head>
