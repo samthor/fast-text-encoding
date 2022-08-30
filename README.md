@@ -2,8 +2,14 @@
 
 This is a fast polyfill for [`TextEncoder`][1] and [`TextDecoder`][2], which let you encode and decode JavaScript strings into UTF-8 bytes.
 
-It is fast partially as it does not support any encodings aside UTF-8 (and note that natively, only `TextDecoder` supports alternative encodings anyway).
+It is fast partially as it does not support^ any encodings aside UTF-8 (and note that natively, only `TextDecoder` supports alternative encodings anyway).
 See [some benchmarks](https://github.com/samthor/fast-text-encoding/tree/master/bench).
+
+<small>
+
+^If this is run on Node v5.1 through v11 (when `Text...` was introduced), then this simply wraps `Buffer`, which supports many encodings and is native code.
+
+</small>
 
 [1]: https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder
 [2]: https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder
