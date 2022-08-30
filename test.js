@@ -69,7 +69,7 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
       await test('arraylike', () => {
         const arr = [104, 101, 108, 108, 111];
 
-        if (isNative) {
+        if (NativeTextEncoder === TextEncoder) {
           // Native can't take Array.
           assert.throws(() => dec.decode(arr));
         } else {
@@ -110,7 +110,7 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
 
       // Since this is being run in Node, this should work.
       await test('nodejs encodings', () => {
-        if (typeof window === 'undefined') {
+        if (typeof window === 'undefined' && isNative) {
           new TextDecoder('utf-16le');
         } else {
           assert.throws(() => {
@@ -173,11 +173,6 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
 }
 
 
-await tests(true, NativeTextEncoder, NativeTextDecoder);
-await tests(false, TextEncoder, TextDecoder);
-
-
-
 await test('always lowlevel', () => {
   const src = 'hello there ƒåcé zing';
 
@@ -187,3 +182,20 @@ await test('always lowlevel', () => {
   assert.equal(src, out);
 });
 
+
+
+
+await tests(true, NativeTextEncoder, NativeTextDecoder);
+await tests(true, TextEncoder, TextDecoder);
+
+const originalBufferFrom = Buffer.from;
+let d;
+try {
+  globalThis.scope = {};
+  Buffer.from = null;
+  d = await import('./src/polyfill.js');
+  console.warn('got Buffer.from', Buffer.from);
+} finally {
+  Buffer.from = originalBufferFrom;
+}
+await tests(false, globalThis.scope.TextEncoder, globalThis.scope.TextDecoder);
