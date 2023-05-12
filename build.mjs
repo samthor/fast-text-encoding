@@ -1,16 +1,10 @@
 import * as esbuild from 'esbuild';
 import * as fs from 'fs';
 
-const out = esbuild.buildSync({
+esbuild.buildSync({
   entryPoints: ['src/polyfill.js'],
   bundle: true,
-  format: 'esm',
-  banner: {
-    js: `(function(scope) {'use strict';`,
-  },
-  footer: {
-    js: `}(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this)));`,
-  },
+  format: 'iife',
   platform: 'neutral',
   sourcemap: 'external',
   outfile: 'text.min.js',

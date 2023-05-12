@@ -1,11 +1,15 @@
-
 import { FastTextEncoder } from './o-encoder.js';
 import { FastTextDecoder } from './o-decoder.js';
 
-// /** @type {object} */
-// const scope = typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this);
+function polyfill(scope) {
+  scope['TextEncoder'] = scope['TextEncoder'] || FastTextEncoder;
+  scope['TextDecoder'] = scope['TextDecoder'] || FastTextDecoder;
+}
 
-scope['TextEncoder'] = scope['TextEncoder'] || FastTextEncoder;
-scope['TextDecoder'] = scope['TextDecoder'] || FastTextDecoder;
-
-// export {};
+polyfill(
+  typeof window !== 'undefined'
+    ? window
+    : typeof global !== 'undefined'
+    ? global
+    : this,
+);
