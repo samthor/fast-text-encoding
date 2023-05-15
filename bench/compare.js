@@ -78,7 +78,7 @@ if (options.local) {
   deleteGlobals();
 
   try {
-    require('../text.min.js');
+    require('../package/text.min.js');
     packages.push('.local');
     impl['.local'] = {TextEncoder: global.TextEncoder, TextDecoder: global.TextDecoder};
   } catch (e) {

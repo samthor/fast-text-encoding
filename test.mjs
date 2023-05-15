@@ -7,7 +7,7 @@ import {
   NativeTextDecoder,
 } from './test-setup.js';
 
-import './text.min.js';
+import './package/text.min.js';
 
 import { decodeFallback, encodeFallback } from './src/lowlevel.js';
 

@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": "true",
   "description": "Build package for fast-text-encoding, should not be published",
-  "main": "text.min.js",
   "repository": "https://github.com/samthor/fast-text-encoding.git",
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
   "license": "Apache-2.0",
