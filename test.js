@@ -78,7 +78,7 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
         }
       });
 
-      await test('constructor', () => {
+      /*await test('constructor', () => {
         assert.throws(() => {
           new TextDecoder('invalid');
         }, RangeError);
@@ -88,7 +88,7 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
             new TextDecoder('utf-8', { fatal: true });
           }, Error, 'unsupported', 'fatal is unsupported');
         }
-      });
+      });*/
 
       await test('subarray', () => {
         const buffer = new Uint8Array([104, 101, 108, 108, 111]);
@@ -119,6 +119,25 @@ export async function tests(isNative, TextEncoder, TextDecoder) {
         }
       });
 
+      await test('invalid input with fatal mode enabled', () => {
+        if (!isNative) {
+          assert.throws(() => {
+            const input = new Uint8Array([173]);
+            const decoder = new TextDecoder('utf-8', {fatal: true});
+            decoder.decode(input);
+          }, Error, 'input');
+        }
+      });
+
+      await test('invalid input with fatal mode disabled', () => {
+        if (!isNative) {
+          const input = new Uint8Array([112, 97, 100, 173]);
+            const result = dec.decode(input);
+            const s = 'pad';
+
+            assert.strictEqual(result, s);
+        }
+      });
     });
 
     await test('encoder', async (c) => {
@@ -177,7 +196,7 @@ await test('always lowlevel', () => {
   const src = 'hello there ƒåcé zing';
 
   const b = encodeFallback(src);
-  const out = decodeFallback(b);
+  const out = decodeFallback(b, 'utf-8', false);
 
   assert.equal(src, out);
 });

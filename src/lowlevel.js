@@ -1,9 +1,6 @@
 
-/**
- * @param {Uint8Array} bytes
- * @return {string}
- */
-export function decodeFallback(bytes) {
+/** @type {(bytes: Uint8Array, encoding: string, fatal: boolean) => string} */
+export function decodeFallback(bytes, encoding, fatal) {
   var inputIndex = 0;
 
   // Create a working buffer for UTF-16 code points, but don't generate one
@@ -70,8 +67,9 @@ export function decodeFallback(bytes) {
         codepoint = 0xdc00 | codepoint & 0x3ff;
       }
       pending[pendingIndex++] = codepoint;
-    } else {
+    } else if (fatal) {
       // invalid initial byte
+      throw new Error('invalid input');
     }
   }
 }
