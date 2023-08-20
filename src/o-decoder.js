@@ -7,16 +7,16 @@ import { decodeSyncXHR } from './xhr.js';
 var trySyncXHR = !hasBufferFrom && (typeof Blob === 'function' && typeof URL === 'function' && typeof URL.createObjectURL === 'function');
 var validUtfLabels = ['utf-8', 'utf8', 'unicode-1-1-utf-8'];
 
-/** @type {(bytes: Uint8Array, encoding: string) => string} */
+/** @type {(bytes: Uint8Array, encoding: string, fatal: boolean) => string} */
 var decodeImpl = decodeFallback;
 if (hasBufferFrom) {
   decodeImpl = decodeBuffer;
 } else if (trySyncXHR) {
-  decodeImpl = (string) => {
+  decodeImpl = (string, encoding, fatal) => {
     try {
       return decodeSyncXHR(string);
     } catch (e) {
-      return decodeFallback(string);
+      return decodeFallback(string, encoding, fatal);
     }
   };
 }
@@ -32,8 +32,6 @@ var errorPrefix = `${failedToString} ${ctorString}: the `;
  * @param {{fatal: boolean}=} options
  */
 export function FastTextDecoder(utfLabel, options) {
-  maybeThrowFailedToOption(options && options.fatal, ctorString, 'fatal');
-
   utfLabel = utfLabel || 'utf-8';
 
   /** @type {boolean} */
@@ -48,13 +46,15 @@ export function FastTextDecoder(utfLabel, options) {
   }
 
   this.encoding = utfLabel;
-  this.fatal = false;
+  this.fatal = options && options.fatal
+    ? true
+    : false;
   this.ignoreBOM = false;
 }
 
 /**
  * @param {(ArrayBuffer|ArrayBufferView)} buffer
- * @param {{stream: boolean}=} options
+ * @param {{stream: boolean, fatal: boolean}=} options
  * @return {string}
  */
 FastTextDecoder.prototype.decode = function (buffer, options) {
@@ -77,5 +77,5 @@ FastTextDecoder.prototype.decode = function (buffer, options) {
     bytes = new Uint8Array(/** @type {any} */(buffer));
   }
 
-  return decodeImpl(bytes, this.encoding);
+  return decodeImpl(bytes, this.encoding, this.fatal);
 };
