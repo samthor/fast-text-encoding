@@ -23,3 +23,20 @@ await import('./text.min.js');
 
 const stat = fs.statSync('text.min.js');
 console.info(`text.min.js: ${stat.size}`);
+
+esbuild.buildSync({
+  entryPoints: ['src/ponyfill.js'],
+  bundle: true,
+  format: 'cjs',
+  platform: 'neutral',
+  sourcemap: 'external',
+  outfile: './package/ponyfill.js',
+  target: 'es5',
+  minify: true,
+});
+
+// confirm it imports
+await import('./package/ponyfill.js');
+
+const ponyfillStat = fs.statSync('ponyfill.js');
+console.info(`ponyfill.js: ${ponyfillStat.size}`);
